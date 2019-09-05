@@ -21,6 +21,10 @@ Users can load DECODER as follows:
 
 Users can choose either to use the built-in cell type reference or to construct reference by their own scATAC-seq data.
 
+	data(demo)
+	bulk.sample<-demo$bulk.sample
+	singlecell.dataset<-demo$singlecell.dataset
+	celltype.idx<-demo$celltype.idx
 	prop <- DECODER(bulk.sample, ref='hematopoietic', singlecell.dataset=NULL, celltype.idx=NULL)
 	prop <- DECODER(bulk.sample, ref='user', singlecell.dataset=singlecell.dataset, celltype.idx=celltype.idx)
 
