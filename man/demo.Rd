@@ -6,7 +6,7 @@
 \title{Demo datasets
 including:
 bulk.sample: demo bulk ATAC-seq hematopoietic samples (137872 peaks by 8 samples)
-singlecell.dataset: demo scATAC-seq hematopoietic data (137872 peaks by 8 cells) 
+singlecell.dataset: demo scATAC-seq hematopoietic data (137872 peaks by 200 cells) 
 celltype.idx: true cell type labels of scATAC-seq cells}
 \format{An object of class \code{list} of length 3.}
 \usage{
@@ -16,7 +16,7 @@ data(demo)
 Demo datasets
 including:
 bulk.sample: demo bulk ATAC-seq hematopoietic samples (137872 peaks by 8 samples)
-singlecell.dataset: demo scATAC-seq hematopoietic data (137872 peaks by 8 cells) 
+singlecell.dataset: demo scATAC-seq hematopoietic data (137872 peaks by 200 cells) 
 celltype.idx: true cell type labels of scATAC-seq cells
 }
 \examples{
