@@ -2,7 +2,6 @@
 #' @import GenomicRanges
 
 
-
 #' @title transfer bed file to Granges
 #' @description This function is used to transfer bed to Granges
 #' @param bed_file bed file

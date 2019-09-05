@@ -4,8 +4,7 @@
 #' @import GenomicAlignments
 #' @import GenomicRanges
 #' @import umap
-#' @importFrom mclust Mclust priorControl
- 
+
 
 
 #' @title Transfer raw count matrix to count-per-million (CPM)
@@ -201,11 +200,11 @@ evaluate<-function(prop1,prop2){
 #' @param singlecell.dataset scATAC-seq raw count matrix.
 #' @param celltype.idx Cell type labels of scATAC-seq. DECODER will cluster the scATAC-seq data when equal to NULL.
 #' @return 
-#' \item{celltype.ref}{scATAC-seq reference profiles}
+#' \item{res}{if celltype.idx==NULL, res is a list containing reference of optimal cluster number k and reference of each k from 2 to 50; otherwise res is a reference matrix.}
 #' @keywords Reference construction
 #' @examples
 #' \dontrun{
-#' celltype.ref<-DECODER.user(singlecell.dataset,celltype.idx)
+#' res<-DECODER.user(singlecell.dataset,celltype.idx)
 #' }
 #' @export
 
@@ -216,23 +215,50 @@ DECODER.user<-function(singlecell.dataset,celltype.idx){
     else if(is.null(celltype.idx)){
         base::message("Cell type labels are missing.")
         base::message("DECODER will cluster the cells and return a list of proportions")
+        allref<-list()
+        
         y<-singlecell.dataset[rowMeans(singlecell.dataset>0)>0.1,]
         y<-normalize.quantiles(y)
         prres <- stats::prcomp(t(y),scale. = T,rank.=50)$x
         set.seed(1234)
         tsne <- umap(prres)$layout
-        set.seed(2019)
-        clst<- Mclust(tsne,G=2:15,prior = priorControl(),verbose=F)
-        celltype.idx <- apply(clst$z,1,which.max)
         
-        celltype.unique<-unique(celltype.idx)
-        len<-length(unique(celltype.idx))
-        y<-matrix(data=NA,nrow=nrow(singlecell.dataset),ncol=len)
-        for(i in 1:len){
-            idx<-which(celltype.idx==celltype.unique[i])
-            y[,i]<-rowMeans(as.matrix(singlecell.dataset[,idx]))
+        ds<-stats::dist(tsne,method='euclidean')
+        hc<-stats::hclust(ds,method='complete')
+        for(k in 2:min(50,ncol(singlecell.dataset))){
+            celltype.idx<-stats::cutree(hc,k=k)
+            celltype.unique<-unique(celltype.idx)
+            len<-length(unique(celltype.idx))
+            y<-matrix(data=NA,nrow=nrow(singlecell.dataset),ncol=len)
+            for(i in 1:len){
+                idx<-which(celltype.idx==celltype.unique[i])
+                y[,i]<-rowMeans(as.matrix(singlecell.dataset[,idx]))
+            }
+            celltype.ref<-count2cpm(y)
+            tmp<-paste0('k=',k)
+            allref[[tmp]]<-celltype.ref
         }
-        celltype.ref<-count2cpm(y)
+        
+        xaxis <- 2:min(50,ncol(singlecell.dataset))
+        yaxis <- sapply(xaxis, function(k) {
+            clu <- stats::cutree(hc,k)
+            cluSS <- sum(sapply(unique(clu),function(i) {
+                sum(rowSums(sweep(tsne[clu==i,,drop=F],2,colMeans(tsne[clu==i,,drop=F]),"-")^2))
+            }))
+            1-cluSS/sum((sweep(tsne,2,colMeans(tsne),"-"))^2)
+        })      
+        yaxis <- c(0,yaxis)
+        xaxis <- c(1,xaxis)
+        clunum <- which.min(sapply(xaxis, function(i) {
+            x2 <- pmax(0,xaxis-i)
+            sum(stats::lm(yaxis~xaxis+x2)$residuals^2)
+        }))
+        
+        opt<-paste0('Optimal k=',clunum)
+        res<-list()
+        res[[opt]]<-allref[[paste0('k=',clunum)]]
+        res[['All']]<-allref
+        
     }
     else{
         celltype.unique<-unique(celltype.idx)
@@ -242,9 +268,9 @@ DECODER.user<-function(singlecell.dataset,celltype.idx){
             idx<-which(celltype.idx==celltype.unique[i])
             y[,i]<-rowMeans(as.matrix(singlecell.dataset[,idx]))
         }
-        celltype.ref<-count2cpm(y)
+        res<-count2cpm(y)
     }
-    return(celltype.ref)
+    return(res)
 }
 
 

@@ -12,14 +12,14 @@ DECODER.user(singlecell.dataset, celltype.idx)
 \item{celltype.idx}{Cell type labels of scATAC-seq. DECODER will cluster the scATAC-seq data when equal to NULL.}
 }
 \value{
-\item{celltype.ref}{scATAC-seq reference profiles}
+\item{res}{if celltype.idx==NULL, res is a list containing reference of optimal cluster number k and reference of each k from 2 to 50; otherwise res is a reference matrix.}
 }
 \description{
 This function is used to construct scATAC-seq reference when ref==user.
 }
 \examples{
 \dontrun{
-celltype.ref<-DECODER.user(singlecell.dataset,celltype.idx)
+res<-DECODER.user(singlecell.dataset,celltype.idx)
 }
 }
 \keyword{Reference}
