@@ -9,7 +9,7 @@ DECODER can be installed via Github.
 To install the latest version of DECODER package via Github, run following commands in R:
 
 	if (!require("devtools"))
-		install.packages("devtools")
+	   install.packages("devtools")
 	devtools::install_github("jwyang16/DECODER")
 
 
