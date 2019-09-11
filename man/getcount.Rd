@@ -4,10 +4,10 @@
 \alias{getcount}
 \title{get count matrix from peak file and bam files}
 \usage{
-getcount(bed_file, bam_file_path)
+getcount(peak, bam_file_path)
 }
 \arguments{
-\item{bed_file}{peak file}
+\item{peak}{Granges format of peak regions}
 
 \item{bam_file_path}{path to bam files}
 }
@@ -19,7 +19,7 @@ This function is used to get count matrix from bam files and peak file.
 }
 \examples{
 \dontrun{
-countmat<-getcount('path/to/bed/file/peak.bed','path/to/bam/files')
+countmat<-getcount(bed2granges('path/to/bed/file/peak.bed'),'path/to/bam/files')
 }
 }
 \keyword{count}

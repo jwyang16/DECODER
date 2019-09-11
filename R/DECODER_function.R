@@ -4,6 +4,7 @@
 #' @import GenomicAlignments
 #' @import GenomicRanges
 #' @import umap
+#' @import Rsamtools
 
 
 

@@ -17,14 +17,14 @@ DECODER(bulk.dataset, ref = c("user", "hematopoietic", "pbmc",
 \item{celltype.idx}{cell type labels of scATAC-seq. DECODER will cluster the scATAC-seq data when equal to NULL in 'user' mode; equal to NULL when using built-in reference.}
 }
 \value{
-\item{proportion.n}{estimated proportion matrix for bulk samples}
+\item{prop}{estimated proportion matrix for bulk samples}
 }
 \description{
 This function is used to deconvolve bulk ATAC-seq samples.
 }
 \examples{
 \dontrun{
-prop.n<-DECODER(bulk.dataset,ref='user',singlecell.dataset,celltype.idx)
+prop<-DECODER(bulk.dataset,ref='user',singlecell.dataset,celltype.idx)
 }
 }
 \keyword{Deconvolution}

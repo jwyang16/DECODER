@@ -1,14 +1,14 @@
 Package: DECODER
 Type: Package
-Title: DECODER: DECOnvolution of DNA accEssibility using anchor-based Regression
+Title: What the package does (short line)
 Version: 1.0
-Date: 2019-09-04
-Author: Jinwen Yang, Weiqiang Zhou, Hongkai Ji
-Maintainer: Jinwen Yang <jwyang16@fudan.edu.cn>
-Description: DECODER is a software tool for deconvolving bulk ATAC-seq samples using scATAC-seq reference.
+Date: 2019-09-11
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line).
 License: GPL(>=2)
 Encoding: UTF-8
 LazyData: true
-Remotes: bioc::3.8/GenomicAlignments, bioc::3.8/preprocessCore, bioc::3.8/GenomicRanges
-Imports: lsei, mgcv, preprocessCore, umap, stats, utils, GenomicAlignments, GenomicRanges
+biocViews:
+Imports: lsei, mgcv, preprocessCore, umap, stats, utils, GenomicAlignments, GenomicRanges, Rsamtools
 RoxygenNote: 6.1.1

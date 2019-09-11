@@ -1,5 +1,76 @@
 #' @import GenomicAlignments
 #' @import GenomicRanges
+#' @import Rsamtools
+
+
+#' @title do peak calling
+#' @description This fuction is used to do peak calling.
+#' @param bam_file_path path to single-cell bam files (The number of sc bam files must >= 2.)
+#' @param genome genome assembly to be used
+#' @return
+#' \item{peak}{peak regions from merged single cells}
+#' @keywords peak calling
+#' @examples 
+#' \dontrun{
+#' peak<-peakcalling('path/to/bam/files',genome='hg19')
+#' }
+#' @export
+
+peakcalling<-function(bam_file_path,genome=c('hg19','hg38','mm9','mm10')){
+    f <- list.files(bam_file_path,pattern="\\.bam$",full.names = T)
+    mergeBam(files=f,destination = paste0(bam_file_path,'/','merged_bam.bam'))
+
+    utils::data(genomes)
+    if(genome=='hg19'){
+        assembly<-genomes$hg19
+    }
+    else if(genome=='hg38'){
+        assembly<-genomes$hg38
+    }
+    else if(genome=='mm9'){
+        assembly<-genomes$mm9
+    }
+    else if(genome=='mm10'){
+        assembly<-genomes$mm10
+    }
+    else{
+        stop(sprintf('Genome assembly \"%s\" ',genome),'is not found.') 
+    }
+    
+    bk<-assembly
+    start(bk)<-end(bk)<-round((start(bk) + end(bk))/2)
+    start(bk)<-start(bk)-4999
+    end(bk)<-end(bk)+5000
+    
+    satac<-readGAlignmentPairs(paste0(bam_file_path,'/','merged_bam.bam'))
+    satac<-GRanges(satac)
+    start(satac)<-end(satac)<-round((start(satac) + end(satac))/2)
+    count.templt<-countOverlaps(assembly,satac,ignore.strand=T)
+    count.bk<-countOverlaps(bk,satac,ignore.strand=T)
+    
+    flag<-count.templt/count.bk
+    flag.0<-flag
+    flag.0[is.nan(flag.0)]<-0
+    
+    flag.n<-flag[!is.nan(flag)]
+    den<-stats::density(flag.n)$y
+    
+    modes <- NULL
+    for ( i in 2:(length(den)-1) ){
+        if ( (den[i] < den[i-1]) & (den[i] < den[i+1]) ) {
+            modes <- c(modes,i)
+        }
+    }
+    if ( length(modes) == 0 ) {
+        print('This is a monotonic distribution')
+    }
+    
+    cutoff<-den[modes[1]]
+    idx<-which(flag.0>cutoff)
+    peak<-assembly[idx]
+    return(peak)
+}
+
 
 
 #' @title transfer bed file to Granges
@@ -35,6 +106,10 @@ bed2granges <- function(bed_file){
     } else if (length(df)==6){
         gr <- with(df, GRanges(chr, IRanges(start, end), id=id, score=score, strand=strand))
     }
+    
+    start(gr)<-start(gr)-99
+    end(gr)<-end(gr)+99
+    
     return(gr)
 }
 
@@ -42,23 +117,20 @@ bed2granges <- function(bed_file){
 
 #' @title get count matrix from peak file and bam files
 #' @description This function is used to get count matrix from bam files and peak file.
-#' @param bed_file peak file
+#' @param peak Granges format of peak regions 
 #' @param bam_file_path path to bam files
 #' @return 
 #' \item{countmatrix}{count matrix, peak by sample}
 #' @keywords count matrix
 #' @examples 
 #' \dontrun{
-#' countmat<-getcount('path/to/bed/file/peak.bed','path/to/bam/files')
+#' countmat<-getcount(bed2granges('path/to/bed/file/peak.bed'),'path/to/bam/files')
 #' }
 #' @export
 
-getcount<-function(bed_file,bam_file_path){
-    gr<-bed2granges(bed_file)
-    start(gr)<-start(gr)-99
-    end(gr)<-end(gr)+99
-    
-    f <- list.files(bam_file_path,pattern="\\.bam$")
+getcount<-function(peak,bam_file_path){
+
+    f <- list.files(bam_file_path,pattern="\\.bam$",full.names = T)
     satac <- sapply(sapply(f,readGAlignmentPairs),GRanges)
     n <- names(satac)
     satac <- lapply(satac,function(i) {
@@ -68,7 +140,7 @@ getcount<-function(bed_file,bam_file_path){
     names(satac) <- n
     
     countmatrix <- sapply(names(satac),function(sid) {
-        tp<-countOverlaps(gr,satac[[sid]],ignore.strand=T)
+        tp<-countOverlaps(peak,satac[[sid]],ignore.strand=T)
         tp
     })
     return(countmatrix)

@@ -4,6 +4,59 @@
 #' @import GenomicAlignments
 #' @import GenomicRanges
 #' @import umap
+#' @import Rsamtools
+
+
+
+#' @title DECODER pipeline
+#' @description This function is used to run DECODER from bam files.
+#' @param bulk_bam_file_path path to bulk bam file(s)
+#' @param ref the type of reference: user/PBMC/mouse pfc/hematopoietic
+#' @param sc_bam_file_path path to single-cell bam files (only and must be required when ref=='user')
+#' @param celltype.idx ad
+#' @param genome genome assembly to be used
+#' @return 
+#' \item{prop}{estimated proportion matrix for bulk samples}
+#' @keywords Deconvolution
+#' @examples 
+#' \dontrun{
+#' prop<-DECODER.pipeline(path/to/bulk,ref='user',path/to/sc,celltype.idx,genome='hg19')
+#' }
+#' @export
+
+DECODER.pipeline<-function(bulk_bam_file_path,ref=c('user','hematopoietic','pbmc','mouse_pfc'),sc_bam_file_path=NULL,celltype.idx=NULL,genome=NULL){
+    if(ref=='user'){
+        if(is.null(sc_bam_file_path)){
+            stop('Single-cell bam files are missing.')
+        }
+        else{
+            peak<-peakcalling(sc_bam_file_path,genome=genome)
+            count.bulk<-getcount(peak,bulk_bam_file_path)
+            count.sc<-getcount(peak,sc_bam_file_path)
+            prop<-DECODER(count.bulk,ref=ref,count.sc,celltype.idx=celltype.idx)
+        }
+    }
+    else{
+        utils::data(ref_peak)
+        if(ref=='hematopoietic'){
+            peak<-ref_peak$hematopoietic
+        }
+        else if(ref=='mouse_pfc'){
+            peak<-ref_peak$mouse_pfc
+        }
+        else if(ref=='pbmc'){
+            peak<-ref_peak$pbmc
+        }
+        else{
+            stop(sprintf('Reference for \"%s\" ',ref),'is not found in the built-in reference profiles.')
+        }
+        count.bulk<-getcount(peak,bulk_bam_file_path)
+        prop<-DECODER(count.bulk,ref=ref)
+    }
+    return(prop)
+}
+
+
 
 #' @title DECODER: Deconvolution of DNA accessibility based on regression
 #' @description This function is used to deconvolve bulk ATAC-seq samples.
@@ -12,11 +65,11 @@
 #' @param singlecell.dataset scATAC-seq raw count matrix. A required input when ref==user; equal to NULL when using built-in reference.
 #' @param celltype.idx cell type labels of scATAC-seq. DECODER will cluster the scATAC-seq data when equal to NULL in 'user' mode; equal to NULL when using built-in reference.
 #' @return 
-#' \item{proportion.n}{estimated proportion matrix for bulk samples}
+#' \item{prop}{estimated proportion matrix for bulk samples}
 #' @keywords Deconvolution
 #' @examples 
 #' \dontrun{
-#' prop.n<-DECODER(bulk.dataset,ref='user',singlecell.dataset,celltype.idx)
+#' prop<-DECODER(bulk.dataset,ref='user',singlecell.dataset,celltype.idx)
 #' }
 #' @export
 
