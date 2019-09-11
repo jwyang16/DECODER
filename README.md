@@ -30,4 +30,9 @@ Users can choose either to use the built-in cell type reference or to construct 
 	prop <- DECODER(bulk.sample, ref='user', singlecell.dataset=singlecell.dataset, celltype.idx=celltype.idx)
 	prop <- DECODER(bulk.sample, ref='user', singlecell.dataset=singlecell.dataset, celltype.idx=NULL)
 
-Each mode returns the estimated cell proportions of cell types in the chosen reference
+Each mode returns the estimated cell proportions of cell types in the chosen reference.
+
+Users can input the bam files of single-cell ATAC-seq data and bulk ATAC-seq data to DECODER.
+	
+	prop <- DECODER.pipeline(bulk_bam_file_path, ref='user',sc_bam_file_path,celltype.idx,genome='hg19')
+	prop <- DECODER.pipeline(bulk_bam_file_path, ref='hematopoietic')
