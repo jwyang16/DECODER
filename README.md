@@ -26,7 +26,7 @@ Users can choose either to use the built-in cell type reference or to construct 
 	singlecell.dataset <- demo$singlecell.dataset
 	celltype.idx <- demo$celltype.idx
 	
-	prop <- DECODER(bulk.sample, ref='hematopoietic', singlecell.dataset=NULL, celltype.idx=NULL)
+	prop <- DECODER(bulk.sample, ref='hematopoietic')
 	prop <- DECODER(bulk.sample, ref='user', singlecell.dataset=singlecell.dataset, celltype.idx=celltype.idx)
 	prop <- DECODER(bulk.sample, ref='user', singlecell.dataset=singlecell.dataset, celltype.idx=NULL)
 
@@ -35,4 +35,4 @@ Each mode returns the estimated cell proportions of cell types in the chosen ref
 Users can run the DECODER pipeline of reading in bam, peak calling and counting, and performing DECODER.
 	
 	prop <- DECODER.pipeline(bulk_bam_file_path, ref='user', sc_bam_file_path, celltype.idx, genome='hg19')
-	prop <- DECODER.pipeline(bulk_bam_file_path, ref='hematopoietic', sc_bam_file_path=NULL, celltype.idx=NULL, genome=NULL)
+	prop <- DECODER.pipeline(bulk_bam_file_path, ref='hematopoietic')
