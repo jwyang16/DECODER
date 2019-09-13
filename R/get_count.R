@@ -54,10 +54,10 @@ peakcalling<-function(bam_file_path,genome=c('hg19','hg38','mm9','mm10')){
     
     flag.n<-flag[!is.nan(flag)]
     set.seed(2019)
-    km<-stats::kmeans(flag.n,center=2,iter.max=100)
+    km<-stats::kmeans(flag.n,centers=2,iter.max=100)
     rsd<-stats::sd(flag.0[which(km$cluster==which.max(km$centers))])
     
-    cutoff<-max(km$center)+rsd
+    cutoff<-max(km$centers)+rsd
     idx<-which(flag.0>cutoff)
     peak<-assembly[idx]
     return(peak)
