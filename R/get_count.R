@@ -38,34 +38,26 @@ peakcalling<-function(bam_file_path,genome=c('hg19','hg38','mm9','mm10')){
     }
     
     bk<-assembly
-    start(bk)<-end(bk)<-round((start(bk) + end(bk))/2)
-    start(bk)<-start(bk)-4999
-    end(bk)<-end(bk)+5000
+    GenomicRanges::start(bk)<-GenomicRanges::end(bk)<-round((GenomicRanges::start(bk) + GenomicRanges::end(bk))/2)
+    GenomicRanges::start(bk)<-GenomicRanges::start(bk)-4999
+    GenomicRanges::end(bk)<-GenomicRanges::end(bk)+5000
     
-    satac<-readGAlignmentPairs(paste0(bam_file_path,'/','merged_bam.bam'))
-    satac<-GRanges(satac)
-    start(satac)<-end(satac)<-round((start(satac) + end(satac))/2)
-    count.templt<-countOverlaps(assembly,satac,ignore.strand=T)
-    count.bk<-countOverlaps(bk,satac,ignore.strand=T)
+    satac<-GenomicAlignments::readGAlignmentPairs(paste0(bam_file_path,'/','merged_bam.bam'))
+    satac<-GenomicRanges::GRanges(satac)
+    GenomicRanges::start(satac)<-GenomicRanges::end(satac)<-round((GenomicRanges::start(satac) + GenomicRanges::end(satac))/2)
+    count.templt<-GenomicRanges::countOverlaps(assembly,satac,ignore.strand=T)
+    count.bk<-GenomicRanges::countOverlaps(bk,satac,ignore.strand=T)
     
     flag<-count.templt/count.bk
     flag.0<-flag
     flag.0[is.nan(flag.0)]<-0
     
     flag.n<-flag[!is.nan(flag)]
-    den<-stats::density(flag.n)$y
+    set.seed(2019)
+    km<-stats::kmeans(flag.n,center=2,iter.max=100)
+    rsd<-stats::sd(flag.0[which(km$cluster==which.max(km$centers))])
     
-    modes <- NULL
-    for ( i in 2:(length(den)-1) ){
-        if ( (den[i] < den[i-1]) & (den[i] < den[i+1]) ) {
-            modes <- c(modes,i)
-        }
-    }
-    if ( length(modes) == 0 ) {
-        print('This is a monotonic distribution')
-    }
-    
-    cutoff<-den[modes[1]]
+    cutoff<-max(km$center)+rsd
     idx<-which(flag.0>cutoff)
     peak<-assembly[idx]
     return(peak)
@@ -134,13 +126,13 @@ getcount<-function(peak,bam_file_path){
     satac <- sapply(sapply(f,readGAlignmentPairs),GRanges)
     n <- names(satac)
     satac <- lapply(satac,function(i) {
-        start(i) <- end(i) <- round((start(i) + end(i))/2)
+        GenomicRanges::start(i) <- GenomicRanges::end(i) <- round((GenomicRanges::start(i) + GenomicRanges::end(i))/2)
         i
     })
     names(satac) <- n
     
     countmatrix <- sapply(names(satac),function(sid) {
-        tp<-countOverlaps(peak,satac[[sid]],ignore.strand=T)
+        tp<-GenomicRanges::countOverlaps(peak,satac[[sid]],ignore.strand=T)
         tp
     })
     return(countmatrix)

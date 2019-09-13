@@ -1,11 +1,11 @@
 Package: DECODER
 Type: Package
-Title: What the package does (short line)
+Title: DECODER: DECOnvolution of DNA accEssibility using anchor-based Regression
 Version: 1.0
-Date: 2019-09-11
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line).
+Date: 2019-09-13
+Author: Jinwen Yang, Weiqiang Zhou, Hongkai Ji
+Maintainer: Jinwen Yang <jwyang16@fudan.edu.cn>
+Description: DECODER is a software tool for deconvolving bulk ATAC-seq samples using scATAC-seq reference.
 License: GPL(>=2)
 Encoding: UTF-8
 LazyData: true
