@@ -60,6 +60,8 @@ peakcalling<-function(bam_file_path,genome=c('hg19','hg38','mm9','mm10')){
     cutoff<-max(km$centers)+rsd
     idx<-which(flag.0>cutoff)
     peak<-assembly[idx]
+    
+    file.remove(paste0(bam_file_path,'/','merged_bam.bam'))
     return(peak)
 }
 

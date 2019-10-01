@@ -269,6 +269,7 @@ DECODER.user<-function(singlecell.dataset,celltype.idx){
             idx<-which(celltype.idx==celltype.unique[i])
             y[,i]<-rowMeans(as.matrix(singlecell.dataset[,idx]))
         }
+        colnames(y)<-celltype.unique
         res<-count2cpm(y)
     }
     return(res)
